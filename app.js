@@ -27,7 +27,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
+mongoose.connect("mongodb+srv://admin-devesh:Test123@cluster0.bjahc.mongodb.net/userDB", {useNewUrlParser: true});
 mongoose.set("useCreateIndex", true);
 
 const userSchema = new mongoose.Schema ({
@@ -93,44 +93,29 @@ app.get("/register", function(req, res){
 });
 
 app.get("/secrets", function(req, res){
-  User.find({"secret": {$ne: null}}, function(err, foundUsers){
-    if (err){
-      console.log(err);
-    } else {
-      if (foundUsers) {
-        res.render("secrets", {usersWithSecrets: foundUsers});
-      }
-    }
-  });
+  res.render("secrets");
 });
 
-app.get("/submit", function(req, res){
-  if (req.isAuthenticated()){
-    res.render("submit");
-  } else {
-    res.redirect("/login");
-  }
+app.get("/quicksort", function(req, res){
+    res.render("quicksort");
 });
 
-app.post("/submit", function(req, res){
-  const submittedSecret = req.body.secret;
-
-//Once the user is authenticated and their session gets saved, their user details are saved to req.user.
-  // console.log(req.user.id);
-
-  User.findById(req.user.id, function(err, foundUser){
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUser) {
-        foundUser.secret = submittedSecret;
-        foundUser.save(function(){
-          res.redirect("/secrets");
-        });
-      }
-    }
-  });
+app.get("/prims", function(req, res){
+    res.render("prims");
 });
+
+app.get("/bubblesort", function(req, res){
+    res.render("bubblesort");
+});
+
+app.get("/dfs", function(req, res){
+    res.render("dfs");
+});
+
+app.get("/binarytree", function(req, res){
+    res.render("binarytree");
+});
+
 
 app.get("/logout", function(req, res){
   req.logout();
@@ -177,6 +162,6 @@ app.post("/login", function(req, res){
 
 
 
-app.listen(3000, function() {
+app.listen(process.env.PORT || 3000, function() {
   console.log("Server started on port 3000.");
 });
