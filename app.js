@@ -93,7 +93,16 @@ app.get("/register", function(req, res){
 });
 
 app.get("/secrets", function(req, res){
-  res.render("secrets");
+
+  User.find({"secret": {$ne: null}}, function(err, foundUsers){
+    if (err){
+      console.log(err);
+    } else {
+      if (foundUsers) {
+        res.render("secrets", {usersWithSecrets: foundUsers});
+      }
+    }
+  });
 });
 
 app.get("/quicksort", function(req, res){
@@ -159,9 +168,12 @@ app.post("/login", function(req, res){
 
 
 
+// let port = process.env.PORT;
+// if(port == null || port = ""){
+//   port = 3000;
+// }
 
 
-
-app.listen(process.env.PORT || 3000, function() {
-  console.log("Server started on port 3000.");
+app.listen((process.env.PORT || 3000) , function() {
+  console.log("Server has started successfully.");
 });
