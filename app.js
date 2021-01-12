@@ -57,7 +57,7 @@ passport.deserializeUser(function(id, done) {
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "https://git.heroku.com/stark-brushlands-07142.git/auth/google/secrets",             // problem is here guarantee
+    callbackURL: "http://localhost:3000/auth/google/secrets",             // problem is here guarantee do your own google oAuth and change CLIENT_ID in .env file
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
   function(accessToken, refreshToken, profile, cb) {
