@@ -7,8 +7,8 @@ const mongoose = require("mongoose");
 const session = require('express-session');
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
-const GoogleStrategy = require('passport-google-oauth20').Strategy;        //delete this for OAuth
-const findOrCreate = require('mongoose-findorcreate');        //delete this for OAuth
+// const GoogleStrategy = require('passport-google-oauth20').Strategy;//delete this for OAuth
+// const findOrCreate = require('mongoose-findorcreate');//delete this for OAuth
 
 const app = express();
 
@@ -27,7 +27,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb+srv://admin-devesh:Test123@cluster0.bjahc.mongodb.net/userDB", {useNewUrlParser: true});
+mongoose.connect("mongodb+srv://admin-devesh:Test123@cluster0.bjahc.mongodb.net/userDB", {useNewUrlParser: true,
+   useUnifiedTopology: true,
+   useCreateIndex: true,
+   useFindAndModify: false});
 mongoose.set("useCreateIndex", true);
 
 const userSchema = new mongoose.Schema ({
@@ -38,47 +41,41 @@ const userSchema = new mongoose.Schema ({
 });
 
 userSchema.plugin(passportLocalMongoose);
-userSchema.plugin(findOrCreate);                  //delete this for OAuth
+// userSchema.plugin(findOrCreate);                  //delete this for OAuth
 
 const User = new mongoose.model("User", userSchema);
 
 passport.use(User.createStrategy());              //delete this for OAuth
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
+passport.serializeUser(User.serializeUser());
 
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
-  });
-});
+passport.deserializeUser(User.deserializeUser());
 
-passport.use(new GoogleStrategy({                 //delete this for OAuth
-
-    clientID: 496512633352-7qi8t26c5jf90d3ch6vr2j36hn6ntfp1.apps.googleusercontent.com,          //process.env.GOOGLE_CLIENT_ID,
-    clientSecret: VyrtRypstl9TFaKP9d7xuICx , //process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/secrets",             // problem is here guarantee do your own google oAuth and change CLIENT_ID in .env file
-
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    console.log(profile);
-
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
-  }
-));
+// passport.use(new GoogleStrategy({                 //delete this for OAuth
+//
+//     clientID: process.env.GOOGLE_CLIENT_ID,
+//     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//     callbackURL: "http://localhost:3000/auth/google/secrets",             // problem is here guarantee do your own google oAuth and change CLIENT_ID in .env file
+//
+//   },
+//   function(accessToken, refreshToken, profile, cb) {
+//     console.log(profile);
+//
+//     User.findOrCreate({ googleId: profile.id }, function (err, user) {
+//       return cb(err, user);
+//     });
+//   }
+// ));
 
 app.get("/", function(req, res){
   res.render("home");
 });
 
-app.get("/auth/google",             //delete this for OAuth
+app.get("/auth/google",
   passport.authenticate('google', { scope: ["profile"] })
 );
 
-app.get("/auth/google/secrets",       //delete this for OAuth
+app.get("/auth/google/secrets",
   passport.authenticate('google', { failureRedirect: "/login" }),
   function(req, res) {
     // Successful authentication, redirect to secrets.
